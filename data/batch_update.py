@@ -1,9 +1,9 @@
 import re
 import datetime
-import examplefunc
-import excelfunc
-import batch_example_data
-import batch_common_constant as const
+import common.excel_util as excel_util
+import data.constant as const
+import data.example_func as example_func
+import data.batch_example_data as batch_example_data
 
 # CONST
 WORK_SHEETNAME = 'new_example'
@@ -30,14 +30,14 @@ def update(filename, color=None):
 
     print('### PREPARE DATA ###')
     # Get Original Data
-    org_ex_data = excelfunc.get_excel_data(filename, EXAMPLE_SHEETNAME)
+    org_ex_data = excel_util.get_excel_data(filename, EXAMPLE_SHEETNAME)
     org_ex_jap = {org_data['japanese']: org_data for org_data in org_ex_data}
-    org_cons_data = excelfunc.get_excel_data(filename, CONSTITUENT_SHEETNAME)
+    org_cons_data = excel_util.get_excel_data(filename, CONSTITUENT_SHEETNAME)
     org_cons_ex_ids = [org_data['example_id'] for org_data in org_cons_data]
-    word_map, sep_words_map = _create_word_maps()
+    word_map, sep_words_map = _create_word_maps(filename)
 
     # Get New Data
-    new_ex_data = excelfunc.get_excel_data(filename, sheetname)
+    new_ex_data = excel_util.get_excel_data(filename, sheetname)
     ex_max_id = max(org_data['id'] for org_data in org_ex_data)
     ex_target = []
     cons_max_id = max(org_data['id'] for org_data in org_cons_data)
@@ -72,21 +72,21 @@ def update(filename, color=None):
     print('#### WRITE to EXCEL')
     print('EXAMPLE(num=%d)' % len(ex_target))
     # this starts from 1, and skip header line (=2)
-    excelfunc.set_excel_data(
+    excel_util.set_excel_data(
         ex_target, filename, EXAMPLE_SHEETNAME, color=color)
 
     print('CONSTITUENT(num=%d)' % len(cons_target))
     # this starts from 1, and skip header line (=2)
-    excelfunc.set_excel_data(
+    excel_util.set_excel_data(
         cons_target, filename, CONSTITUENT_SHEETNAME, color=color)
-    excelfunc.set_excel_data(
+    excel_util.set_excel_data(
         cons_target, filename, WORK_CONS_SHEETNAME, color=color)
 
     print('### UPDATED!!! ###')
 
 
-def _create_word_maps():
-    org_words_data = excelfunc.get_excel_data(filename, WORD_SHEETNAME)
+def _create_word_maps(filename):
+    org_words_data = excel_util.get_excel_data(filename, WORD_SHEETNAME)
     org_words_data.sort(key=lambda x: x['searchs'], reverse=True)
 
     word_map = {}
@@ -99,7 +99,7 @@ def _create_word_maps():
             word_map[wordstr] = word
 
             disp_txt = ''
-            word_data = examplefunc.get_sentence_data(wordstr)
+            word_data = example_func.get_sentence_data(wordstr)
             if len(word_data['words_list']) > 0:
                 rec_map = sep_words_map
                 for d in word_data['words_list']:
@@ -171,7 +171,7 @@ if __name__ == '__main__':
         # Read target sentences
         filename = sys.argv[1]
         batch_example_data.set_example_data(filename)
-        update(filename, random.choice(excelfunc.COLOR_INDEX))
+        update(filename, random.choice(excel_util.COLOR_INDEX))
         quit()
     if len(sys.argv) != 2:
         print('ERROR')
@@ -180,4 +180,4 @@ if __name__ == '__main__':
 
     # Read target sentences
     filename = sys.argv[1]
-    update(filename, random.choice(excelfunc.COLOR_INDEX))
+    update(filename, random.choice(excel_util.COLOR_INDEX))

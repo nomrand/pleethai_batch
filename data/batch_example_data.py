@@ -1,6 +1,6 @@
 import sys
-import examplefunc
-import excelfunc
+import common.excel_util as excel_util
+import data.example_func as example_func
 
 # CONST
 WORK_SHEETNAME = 'new_example'
@@ -18,7 +18,7 @@ def set_example_data(filename):
     print('### CREATE EXAMPLES DATA ###')
     sheetname = WORK_SHEETNAME
 
-    sentences_data = excelfunc.get_excel_data(filename, sheetname)
+    sentences_data = excel_util.get_excel_data(filename, sheetname)
     if len(sentences_data) == 0:
         print("ERROR (NO EXAMPLES DATA)")
         return
@@ -31,13 +31,13 @@ def set_example_data(filename):
         if not data['japanese']:
             break
         print('\tEx Data:%s' % data['japanese'])
-        sentence = examplefunc.get_sentence_data(data['japanese'])
+        sentence = example_func.get_sentence_data(data['japanese'])
         sentence['words_list'] = ','.join(sentence['words_list'])
         result.append(sentence)
 
     print('WRITE to EXCEL')
     # line 1 is a header line, therefore starts line2
-    excelfunc.set_excel_data(result, filename, sheetname, startrow=2)
+    excel_util.set_excel_data(result, filename, sheetname, startrow=2)
     print('### CREATED!!! ###')
 
 

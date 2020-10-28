@@ -1,7 +1,7 @@
 import sys
 from pykakasi import kakasi  # translate japanese to roman
 from janome.tokenizer import Tokenizer  # analysis sentence
-import batch_common_constant as const
+import data.constant as const
 
 
 def conv_word(word, mode1, mode2):
