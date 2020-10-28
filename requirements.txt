@@ -1,8 +1,8 @@
 dill==0.3.2
 et-xmlfile==1.0.1
-Janome==0.4.1
+Janome==0.3.10
 jdcal==1.4.1
 klepto==0.1.9
 openpyxl==3.0.5
 pox==0.2.8
-pykakasi==2.0.1
+pykakasi==1.2

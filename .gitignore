@@ -1,0 +1,6 @@
+# python
+*.pyc
+
+# my settings
+# Excel temp file
+~$*
