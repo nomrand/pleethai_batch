@@ -4,7 +4,7 @@ import re
 import common.excel_util as excel_util
 import common.word_util as word_util
 
-import data.const as const
+import example.const as const
 
 
 def set_temp_data(filename):

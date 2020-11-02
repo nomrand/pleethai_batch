@@ -1,5 +1,5 @@
 import pytest
-import data.batch_update as batch_update
+import example.create_ex_cons_data as create_ex_cons_data
 
 @pytest.mark.parametrize('sentence, expect', [
     ('私は走った',
@@ -8,7 +8,7 @@ import data.batch_update as batch_update
     ),
 ])
 def test_get_sentence_data(sentence, expect):
-    assert batch_update.get_sentence_data(sentence) == expect
+    assert create_ex_cons_data.get_sentence_data(sentence) == expect
 
 if __name__ == '__main__':
     pytest.main(['-v', __file__])
