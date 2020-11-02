@@ -1,5 +1,5 @@
 import pytest
-import data.example_func as example_func
+import common.word_util as word_util
 
 @pytest.mark.parametrize('word, mode_from, mode_to, expect', [
     ('ワタシハ', 'K', 'H', 'わたしは'),
@@ -8,7 +8,7 @@ import data.example_func as example_func
     ('私は走った', 'J', 'H', 'わたしははしった'),
 ])
 def test_conv_word(word, mode_from, mode_to, expect):
-    assert example_func.conv_word(word, mode_from, mode_to) == expect
+    assert word_util.conv_word(word, mode_from, mode_to) == expect
 
 
 if __name__ == '__main__':

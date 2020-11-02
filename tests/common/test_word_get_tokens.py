@@ -1,5 +1,5 @@
 import pytest
-import data.example_func as example_func
+import common.word_util as word_util
 
 @pytest.mark.parametrize('sentence, expect', [
     ('私は走った', [
@@ -9,7 +9,7 @@ import data.example_func as example_func
     ]),
 ])
 def test_get_tokens_simple(sentence, expect):
-    assert example_func.get_tokens_simple(sentence) == expect
+    assert word_util.get_tokens_simple(sentence) == expect
 
 
 @pytest.mark.parametrize('sentence, expect', [
@@ -23,7 +23,7 @@ def test_get_tokens_simple(sentence, expect):
     ]),
 ])
 def test_get_tokens(sentence, expect):
-    assert example_func.get_tokens(sentence) == expect
+    assert word_util.get_tokens(sentence) == expect
 
 
 if __name__ == '__main__':

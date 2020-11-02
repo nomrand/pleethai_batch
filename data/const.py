@@ -1,6 +1,13 @@
 # batch common constants
 DEBUG = False
 
+# EXCEL CONST
+WORK_SHEETNAME = 'new_example'
+EXAMPLE_SHEETNAME = 'Example'
+WORD_SHEETNAME = 'Word'
+CONSTITUENT_SHEETNAME = 'Constituent'
+WORK_CONS_SHEETNAME = 'tmp_Constituent'
+
 # word class id data
 WORD_CLASS = {
     "動詞": 1,
@@ -42,4 +49,5 @@ SIMBOL_CONVERT_TO_HANKAKU.update({
 SIMBOL_CONVERT_TO_ZENKAKU = {
     chr(0x0021 + i): chr(0xFF01 + i) for i in range(94)}
 
+# LIST OF WORDS THAT IS IGNORED
 NO_WORDS_LIST_TARGETS = ['～']
