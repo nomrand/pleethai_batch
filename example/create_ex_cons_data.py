@@ -202,6 +202,9 @@ def _create_word_maps(org_words_data):
                 (i, len(org_words_data), int(i*100 / len(org_words_data))))
 
         for wordstr in re.split(r'[()/／（）、,]+', word['japanese']):
+            if len(wordstr) == 0:
+                continue
+            
             if wordstr in word_map:
                 continue
 
