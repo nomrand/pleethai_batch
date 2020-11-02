@@ -2,11 +2,12 @@
 DEBUG = False
 
 # EXCEL CONST
-WORK_SHEETNAME = 'new_example'
-EXAMPLE_SHEETNAME = 'Example'
-WORD_SHEETNAME = 'Word'
-CONSTITUENT_SHEETNAME = 'Constituent'
-WORK_CONS_SHEETNAME = 'tmp_Constituent'
+EXCEL_TMP = 'create_ex_cons_result.xlsx'
+EXCEL_TMP_EX_SHEET = 'Example_Input'
+EXCEL_TMP_CONS_SHEET = 'tmp_Constituent'
+EXCEL_WORD = 'Word.xlsx'
+EXCEL_EXAMPLE = 'Example.xlsx'
+EXCEL_CONSTITUENT = 'Constituent.xlsx'
 
 # word class id data
 WORD_CLASS = {

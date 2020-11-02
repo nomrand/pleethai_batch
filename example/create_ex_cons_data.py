@@ -1,33 +1,38 @@
 import datetime
 import re
+import shutil
 
 import common.excel_util as excel_util
+import common.file_util as file_util
 import common.word_util as word_util
 
 import example.const as const
 
 
-def set_temp_data(filename):
+def set_temp_data(top_path):
     ''' Create Temporaly Example data & Set to Excel
 
     Parameters
     ----------
-    filename : str
-        File path to Excel
+    top_path : str
+        Top path of Excel file
     '''
-    print('### CREATE TEMPORALY DATA ###')
-    sheetname = const.WORK_SHEETNAME
+    print('### CREATE TEMPORALY DATA!!! ###')
+    
+    # check the files that will be used in this operation
+    # IN
+    file_in_tmp = file_util.get_filepath_exist(top_path, 'in', const.EXCEL_TMP)
 
-    sentences_data = excel_util.get_excel_data(filename, sheetname)
-    if len(sentences_data) == 0:
-        print("ERROR (NO EXAMPLES DATA)")
+    tmp_ex_data = excel_util.get_excel_data(file_in_tmp, const.EXCEL_TMP_EX_SHEET)
+    if len(tmp_ex_data) == 0:
+        print("ERROR (NO EXAMPLES DATA in %s:%s sheet)" % (file_in_tmp, const.EXCEL_TMP_EX_SHEET))
         return
-    if sentences_data[0]["hiragana"] is not None:
+    if tmp_ex_data[0]["hiragana"] is not None:
         print("SKIP (ALREADY HAD EXAMPLES DATA)")
         return
 
     result = []
-    for data in sentences_data:
+    for data in tmp_ex_data:
         if not data['japanese']:
             break
         print('\tEx Data:%s' % data['japanese'])
@@ -37,40 +42,53 @@ def set_temp_data(filename):
 
     print('WRITE to EXCEL')
     # line 1 is a header line, therefore starts line2
-    excel_util.set_excel_data(result, filename, sheetname, startrow=2)
+    # (save to file in 'in' directory)
+    excel_util.set_excel_data(result, file_in_tmp, const.EXCEL_TMP_EX_SHEET, startrow=2)
     print('### CREATED!!! ###')
 
 
-def set_actual_data(filename, color=None):
+def set_actual_data(top_path, color=None):
     ''' Create Actual Example, Constituent data & Set to Excel
 
     Parameters
     ----------
-    filename : str
-        File path to Excel
+    top_path : str
+        Top path of Excel file
     color : str
         Cell style color code for new data (such as '00112233')
     '''
-    print('### SET ACTUAL DB DATA ###')
-    work_sheetname = const.WORK_SHEETNAME
+    print('### SET ACTUAL DB DATA START!!! ###')
+
+    # check the files that will be used in this operation
+    # IN
+    file_in_tmp = file_util.get_filepath_exist(top_path, 'in', const.EXCEL_TMP)
+    file_in_example = file_util.get_filepath_exist(top_path, 'in', const.EXCEL_EXAMPLE)
+    file_in_cons = file_util.get_filepath_exist(top_path, 'in', const.EXCEL_CONSTITUENT)
+    file_in_word = file_util.get_filepath_exist(top_path, 'in', const.EXCEL_WORD)
+    # OUT
+    file_out_example = file_util.get_filepath_noexist(top_path, 'out', const.EXCEL_EXAMPLE)
+    file_out_cons = file_util.get_filepath_noexist(top_path, 'out', const.EXCEL_CONSTITUENT)
+    shutil.copyfile(file_in_example, file_out_example)
+    shutil.copyfile(file_in_cons, file_out_cons)
+
     nowtime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     print('### PREPARE DATA ###')
     # Get Original Data
     print('\tGetting Example Data' )
-    org_ex_data = excel_util.get_excel_data(filename, const.EXAMPLE_SHEETNAME)
+    org_ex_data = excel_util.get_excel_data(file_in_example)
     org_ex_jap = {org_data['japanese']: org_data for org_data in org_ex_data}
     print('\tGetting Constituent Data' )
-    org_cons_data = excel_util.get_excel_data(filename, const.CONSTITUENT_SHEETNAME)
+    org_cons_data = excel_util.get_excel_data(file_in_cons)
     org_cons_ex_ids = [org_data['example_id'] for org_data in org_cons_data]
 
     print('\tCreating Temp Word Data' )
-    org_words_data = excel_util.get_excel_data(filename, const.WORD_SHEETNAME)
-    org_words_data.sort(key=lambda x: x['searchs'], reverse=True)
+    org_words_data = excel_util.get_excel_data(file_in_word)
+    org_words_data.sort(key=lambda x: x['search'], reverse=True)
     word_map, sep_words_map = _create_word_maps(org_words_data)
 
-    # Get Work Data
-    work_ex_data = excel_util.get_excel_data(filename, work_sheetname)
+    # Get Tmp Data
+    tmp_ex_data = excel_util.get_excel_data(file_in_tmp, const.EXCEL_TMP_EX_SHEET)
     ex_ids = [org_data['id'] for org_data in org_ex_data]
     ex_max_id = 0
     if len(ex_ids) > 0:
@@ -84,7 +102,7 @@ def set_actual_data(filename, color=None):
     cons_target = []
 
     # Create Data to Write
-    for data in work_ex_data:
+    for data in tmp_ex_data:
         print('\tEx Data(for update):%s' % data['japanese'])
         # Example
         if data['japanese'] in org_ex_jap:
@@ -116,15 +134,13 @@ def set_actual_data(filename, color=None):
     print('#### WRITE to EXCEL')
     print('EXAMPLE(num=%d)' % len(ex_target))
     # this starts from 1, and skip header line (=2)
-    excel_util.set_excel_data(
-        ex_target, filename, const.EXAMPLE_SHEETNAME, color=color)
+    excel_util.set_excel_data(ex_target, file_out_example, color=color)
 
     print('CONSTITUENT(num=%d)' % len(cons_target))
     # this starts from 1, and skip header line (=2)
-    excel_util.set_excel_data(
-        cons_target, filename, const.CONSTITUENT_SHEETNAME, color=color)
-    excel_util.set_excel_data(
-        cons_target, filename, const.WORK_CONS_SHEETNAME, color=color)
+    excel_util.set_excel_data(cons_target, file_out_cons, color=color)
+    excel_util.set_excel_data(cons_target, file_in_tmp,
+        const.EXCEL_TMP_CONS_SHEET, color=color)
 
     print('### UPDATED!!! ###')
 
@@ -142,12 +158,14 @@ def get_sentence_data(sentence):
         result['hiragana']   Hiragana (space-separated) (ex. わたし は はしっ た)
         result['roman']   Roman (space-separated) (ex. watashi ha hashitsu ta)
         result['words_list']   List of words (ex. result['words_list'][0]=私, result['words_list'][1]=走る, ...)
+        result['wordclasses_list']   List of wordclasses
     '''
     tokens = word_util.get_tokens(sentence)
 
     hiras = ''
     romans = ''
     words_list = []
+    wordclasses_list = []
     for t in tokens:
         hiras += t['hiragana'] + ' '
         romans += t['roman'] + ' '
@@ -161,6 +179,7 @@ def get_sentence_data(sentence):
                 # Not for target (postpositional particle, such as 'は', 'が', 'へ', 'の', 'と', 'も' ...)
                 continue
             words_list.append(t['base'])
+            wordclasses_list.append(t['wordclass'])
 
     hiras = hiras.strip()
     romans = romans.strip()
@@ -169,6 +188,7 @@ def get_sentence_data(sentence):
         'hiragana': hiras,
         'roman': romans,
         'words_list': words_list,
+        'wordclasses_list': wordclasses_list,
     }
     return result
 
@@ -204,7 +224,7 @@ def _create_word_maps(org_words_data):
         for wordstr in re.split(r'[()/／（）、,]+', word['japanese']):
             if len(wordstr) == 0:
                 continue
-            
+
             if wordstr in word_map:
                 continue
 

@@ -3,8 +3,12 @@ import example.create_ex_cons_data as create_ex_cons_data
 
 @pytest.mark.parametrize('sentence, expect', [
     ('私は走った',
-        {'hiragana': 'わたし は はしった', 'roman': 'watashi wa hashitta',
-        'words_list': ['私', '走る']},
+        {
+            'hiragana': 'わたし は はしった',
+            'roman': 'watashi wa hashitta',
+            'words_list': ['私', '走る'],
+            'wordclasses_list': ['代名詞', '動詞']
+        },
     ),
 ])
 def test_get_sentence_data(sentence, expect):
