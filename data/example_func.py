@@ -4,11 +4,11 @@ from janome.tokenizer import Tokenizer  # analysis sentence
 import data.constant as const
 
 
-def conv_word(word, mode1, mode2):
+def conv_word(word, mode_from, mode_to):
     ''' Convert word
     Parameters
     ----------
-    mode1, mode2 : str
+    mode_from, mode_to : str
         K	Katakana
         H	Hiragana
         J	Kanji
@@ -19,26 +19,31 @@ def conv_word(word, mode1, mode2):
     https://pykakasi.readthedocs.io/en/latest/api.html#conversion-options
     '''
     k = kakasi()
-    k.setMode(mode1, mode2)
+    k.setMode(mode_from, mode_to)
     conv = k.getConverter()
 
     return conv.do(word)
 
 
-def get_tokens(sentence):
-    ''' Separete sentence to words list
+def get_tokens_simple(sentence):
+    ''' Separete sentence to words tokens list (simple mode)
+    Parameters
+    ----------
+    sentence : str
+        1 line of Japanese example(sentence) ex. 私は走った
+
     Returns
     -------
-    result : dict
-
-    result['surface'] : list of str
-        ex. ['私', 'は', '走っ', 'た']
-    result['base'] : list of str
-        ex. ['私', 'は', '走る', 'た']
-    result['katakana'] : list of str
-        ex. ['ワタシ', 'ハ', 'ハシッ', 'タ']
-    result['wordclass'] : list of str
-        ex. ['名詞', '助詞', '動詞', '助動詞']
+    result : list of dict
+    
+    result[n]['surface'] : str,
+    result[n]['base'] : str,
+    result[n]['katakana'] : str,
+    result[n]['wordclass'] : str,
+      ex.
+      result[0] = {'surface': '私',    'base': '私', 'katakana': 'ワタシ',  'wordclass': '代名詞'}
+      result[1] = {'surface': 'は',    'base': 'は', 'katakana': 'ハ',      'wordclass': '助詞'}
+      result[2] = {'surface': '走った','base': '走る','katakana': 'ハシッタ','wordclass': '動詞'}
     '''
     # Normalization
     sentence = sentence.translate(
@@ -55,16 +60,11 @@ def get_tokens(sentence):
             tokens[i].reading += tokens[i+1].reading
             tokens.pop(i+1)
 
-    result = {
-        "surface": [],
-        "base": [],
-        "katakana": [],
-        "wordclass": [],
-    }
+    result = []
     for t in tokens:
-        result["surface"].append(t.surface)
-        result["base"].append(t.base_form)
-        result["katakana"].append(t.reading if t.reading != '*' else t.surface)
+        surface_str = t.surface
+        base_str = t.base_form
+        katakana_str = t.reading if t.reading != '*' else t.surface
 
         if const.DEBUG:
             print("DEBUG)", t.base_form, ":", t.part_of_speech)
@@ -79,10 +79,65 @@ def get_tokens(sentence):
             if all([chk0, chk1, chk2]):
                 wordclass_str = class_chk_conv[3]
                 break
-        result["wordclass"].append(wordclass_str)
+        
+        result.append({
+            "surface": surface_str,
+            "base": base_str,
+            "katakana": katakana_str,
+            "wordclass": wordclass_str,
+        })
 
     return result
 
+
+def get_tokens(sentence):
+    ''' Separete sentence to words tokens list
+    Parameters
+    ----------
+    sentence : str
+        1 line of Japanese example(sentence) ex. 私は走った
+
+    Returns
+    -------
+    result : list of dict
+    
+    result[n]['surface'] : str,
+    result[n]['base'] : str,
+    result[n]['katakana'] : str,
+    result[n]['wordclass'] : str,
+    result[n]['hiragana'] : str,
+    result[n]['roman'] : str,
+      ex.
+      result[0] = {'surface': '私',    'base': '私', 'katakana': 'ワタシ',  'wordclass': '代名詞',
+        'hiragana': 'わたし', 'roman': 'watashi'}
+      result[1] = {'surface': 'は',    'base': 'は', 'katakana': 'ハ',      'wordclass': '助詞',
+        'hiragana': 'は', 'roman': 'wa'}
+      result[2] = {'surface': '走った','base': '走る','katakana': 'ハシッタ','wordclass': '動詞',
+        'hiragana': 'はしった', 'roman': 'hashitta'}
+    '''
+    tokens = get_tokens_simple(sentence)
+
+    result = []
+    for t in tokens:
+        katakana_str = t['katakana']
+        # add hira & roman
+        # Get Hiragana
+        hiragana_str = conv_word(katakana_str, 'K', 'H')
+        t['hiragana'] = hiragana_str
+
+        # Normalization Katakana for roman
+        katakana_str = katakana_str.translate(str.maketrans(const.SIMBOL_CONVERT_TO_HANKAKU))
+        # ハ->ワ(to make roman 'wa')
+        if t['wordclass'] == '助詞' and katakana_str == 'ハ':
+            katakana_str = 'ワ'
+
+        # Get Roman
+        roman = conv_word(katakana_str, 'K', 'a')
+        t['roman'] = roman
+
+        result.append(t)
+
+    return result
 
 def get_sentence_data(sentence):
     ''' Convert example(sentence) to Hiragana, Roman, Words...
@@ -98,35 +153,24 @@ def get_sentence_data(sentence):
         result['roman']   Roman (space-separated) (ex. watashi ha hashitsu ta)
         result['words_list']   List of words (ex. result['words_list'][0]=私, result['words_list'][1]=走る, ...)
     '''
-    t = get_tokens(sentence)
+    tokens = get_tokens(sentence)
 
     hiras = ''
     romans = ''
     words_list = []
-    for i, (kata, wordclass, word) in enumerate(zip(t["katakana"], t["wordclass"], t["base"])):
-        # Get Hiragana (sentence -> Katakana(space-separated) -> Hiragana(space-separated))
-        hira = conv_word(kata, 'K', 'H')
-        hiras += hira + ' '
+    for t in tokens:
+        hiras += t['hiragana'] + ' '
+        romans += t['roman'] + ' '
 
-        # Get Roman (Katakana(space-separated) -> Roman(space-separated))
-        # Normalization
-        kata = kata.translate(str.maketrans(const.SIMBOL_CONVERT_TO_HANKAKU))
-        # ハ->ワ(to make roman 'wa')
-        if t["wordclass"][i] == '助詞' and kata == 'ハ':
-            kata = 'ワ'
-        roman = conv_word(kata, 'K', 'a')
-        romans += roman + ' '
-
-        # Get Words & WordClass
-        if wordclass in const.WORD_CLASS:
-            if word in ['～']:
+        # Set Words
+        if t['wordclass'] in const.WORD_CLASS:
+            if t['base'] in const.NO_WORDS_LIST_TARGETS:
                 # Not for target
-                pass
-            elif (len(word) == 1) and (word == hira) and (wordclass != '名詞'):
-                # Not for target
-                pass
-            else:
-                words_list.append(word)
+                continue
+            if (len(t['base']) == 1) and (t['base'] == t['hiragana']) and (t['wordclass'] != '名詞'):
+                # Not for target (postpositional particle, such as 'は', 'が', 'へ', 'の', 'と', 'も' ...)
+                continue
+            words_list.append(t['base'])
 
     hiras = hiras.strip()
     romans = romans.strip()

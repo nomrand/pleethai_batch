@@ -30,17 +30,27 @@ def update(filename, color=None):
 
     print('### PREPARE DATA ###')
     # Get Original Data
+    print('\tGetting Example Data' )
     org_ex_data = excel_util.get_excel_data(filename, EXAMPLE_SHEETNAME)
     org_ex_jap = {org_data['japanese']: org_data for org_data in org_ex_data}
+    print('\tGetting Constituent Data' )
     org_cons_data = excel_util.get_excel_data(filename, CONSTITUENT_SHEETNAME)
     org_cons_ex_ids = [org_data['example_id'] for org_data in org_cons_data]
+    print('\tCreating Temp Word Data' )
     word_map, sep_words_map = _create_word_maps(filename)
 
     # Get New Data
     new_ex_data = excel_util.get_excel_data(filename, sheetname)
-    ex_max_id = max(org_data['id'] for org_data in org_ex_data)
+    ex_ids = [org_data['id'] for org_data in org_ex_data]
+    ex_max_id = 0
+    if len(ex_ids) > 0:
+        ex_max_id = max(ex_ids)
     ex_target = []
-    cons_max_id = max(org_data['id'] for org_data in org_cons_data)
+
+    cons_ids = [org_data['id'] for org_data in org_cons_data]
+    cons_max_id = 0
+    if len(cons_ids) > 0:
+        cons_max_id = max(cons_ids)
     cons_target = []
 
     # Create Data to Write
@@ -86,12 +96,19 @@ def update(filename, color=None):
 
 
 def _create_word_maps(filename):
+    '''
+    This operation will take long time up to number of WORD table records
+    '''
     org_words_data = excel_util.get_excel_data(filename, WORD_SHEETNAME)
     org_words_data.sort(key=lambda x: x['searchs'], reverse=True)
 
     word_map = {}
     sep_words_map = {}
-    for word in org_words_data:
+    for i, word in enumerate(org_words_data):
+        if i % 200 == 0:
+            print('\tCreate Temp Word Data No.%d of %d (%d%%)' %
+                (i, len(org_words_data), int(i*100 / len(org_words_data))))
+
         for wordstr in re.split(r'[()/／（）、,]+', word['japanese']):
             if wordstr in word_map:
                 continue
