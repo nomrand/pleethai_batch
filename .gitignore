@@ -9,3 +9,5 @@ Thumbs.db
 # my settings
 # Excel temp file
 ~$*
+# Excel data file
+excel_data/**
