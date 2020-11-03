@@ -211,44 +211,56 @@ def _create_cons_data(example_data, word_map, sep_words_map):
     words_list = example_data['words_list'].split(',')
     index = 0
     max_index = len(words_list)
+
+    print('Create Constituent for Example %s (%s)' % (example_data['id'], example_data['words_list']))
+
+    # check a word by a word in an example sentence
     while index < max_index:
         cons_data = {}
         w = words_list[index]
         word_obj = None
+        if const.DEBUG:
+            print('DEBUG)Find Cons... for Word:' + w)
 
         if w in word_map:
             # perfect match
             word_obj = word_map[w]
-        if w in sep_words_map:
+            if const.DEBUG:
+                print('\tSearched:%s (%d)' % (w, word_obj['id']))
+        else:
             # find from the separated words
             # ex.
-            # 　if target Example is '生きていたXXXX' -> it will be changed ['生きる', 'いる', XXXX]
+            # 　if target Example sentence was '生きていたXXXX'
+            #   -> it will be separated ['生きる', 'いる', XXXX]
             # 　and it will match with the Word '生きている'(==sep_words_map['生きる']['いる']['__value__'])
-            tmp_word_obj = None
-            tmp_map = sep_words_map[w]
-            tmp_index = index + 1
+            disp_txt = ''
+            tmp_map = sep_words_map
+            tmp_index = index
             while tmp_index < max_index and (words_list[tmp_index] in tmp_map):
+                disp_txt += words_list[tmp_index] + ' > '
                 tmp_map = tmp_map[words_list[tmp_index]]
 
                 if '__value__' in tmp_map:
                     # separated words match
-                    tmp_word_obj = tmp_map['__value__']
+                    word_obj = tmp_map['__value__']
                 elif 'する' in tmp_map and '__value__' in tmp_map['する']:
                     # 'XXする' matches the word 'XX'
-                    tmp_word_obj = tmp_map['する']['__value__']
-                    
-                tmp_index += 1
+                    word_obj = tmp_map['する']['__value__']
 
-            if tmp_word_obj is not None:
-                word_obj = tmp_word_obj
-                index = tmp_index - 1
+                if word_obj is not None:
+                    # advance next index of Outer while loop
+                    index = tmp_index
+                    if const.DEBUG:
+                        print('\tSearched:%s (%d)' % (disp_txt, word_obj['id']))
+
+                tmp_index += 1
 
         if word_obj is not None:
             # Word match
-            order += 1
             # for real Constituent data
             cons_data['example_id'] = example_data['id']
             cons_data['word_id'] = word_obj['id']
+            order += 1
             cons_data['order'] = order
 
             # for tmp Constituent data
