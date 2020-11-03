@@ -5,8 +5,7 @@ import shutil
 import common.excel_util as excel_util
 import common.file_util as file_util
 import common.word_util as word_util
-
-import example.const as const
+import common.const as const
 
 
 def set_temp_data(top_path):
@@ -36,7 +35,7 @@ def set_temp_data(top_path):
         if not data['japanese']:
             break
         print('\tEx Data:%s' % data['japanese'])
-        sentence = get_sentence_data(data['japanese'])
+        sentence = word_util.get_sentence_data(data['japanese'])
         sentence['words_list'] = ','.join(sentence['words_list'])
         result.append(sentence)
 
@@ -133,64 +132,15 @@ def set_actual_data(top_path, color=None):
 
     print('#### WRITE to EXCEL')
     print('EXAMPLE(num=%d)' % len(ex_target))
-    # this starts from 1, and skip header line (=2)
     excel_util.set_excel_data(ex_target, file_out_example, color=color)
 
     print('CONSTITUENT(num=%d)' % len(cons_target))
-    # this starts from 1, and skip header line (=2)
     excel_util.set_excel_data(cons_target, file_out_cons, color=color)
     excel_util.set_excel_data(cons_target, file_in_tmp,
         const.EXCEL_TMP_CONS_SHEET, color=color)
 
     print('### UPDATED!!! ###')
 
-
-def get_sentence_data(sentence):
-    ''' Convert example(sentence) to Hiragana, Roman, Words...
-    Parameters
-    ----------
-    sentence : str
-        1 line of Japanese example(sentence) ex. 私は走った
-
-    Returns
-    -------
-    result : dict
-        result['hiragana']   Hiragana (space-separated) (ex. わたし は はしっ た)
-        result['roman']   Roman (space-separated) (ex. watashi ha hashitsu ta)
-        result['words_list']   List of words (ex. result['words_list'][0]=私, result['words_list'][1]=走る, ...)
-        result['wordclasses_list']   List of wordclasses
-    '''
-    tokens = word_util.get_tokens(sentence)
-
-    hiras = ''
-    romans = ''
-    words_list = []
-    wordclasses_list = []
-    for t in tokens:
-        hiras += t['hiragana'] + ' '
-        romans += t['roman'] + ' '
-
-        # Set Words
-        if t['wordclass'] in const.WORD_CLASS:
-            if t['base'] in const.NO_WORDS_LIST_TARGETS:
-                # Not for target
-                continue
-            if (len(t['base']) == 1) and (t['base'] == t['hiragana']) and (t['wordclass'] != '名詞'):
-                # Not for target (postpositional particle, such as 'は', 'が', 'へ', 'の', 'と', 'も' ...)
-                continue
-            words_list.append(t['base'])
-            wordclasses_list.append(t['wordclass'])
-
-    hiras = hiras.strip()
-    romans = romans.strip()
-
-    result = {
-        'hiragana': hiras,
-        'roman': romans,
-        'words_list': words_list,
-        'wordclasses_list': wordclasses_list,
-    }
-    return result
 
 
 def _create_word_maps(org_words_data):
@@ -234,7 +184,7 @@ def _create_word_maps(org_words_data):
             # set separeted data map, such as
             # sep_words_map['生きる']['いる']['__value__'] -> word data of the word '生きている'
             disp_txt = ''
-            word_data = get_sentence_data(wordstr)
+            word_data = word_util.get_sentence_data(wordstr)
             if len(word_data['words_list']) > 0:
                 rec_map = sep_words_map
                 for d in word_data['words_list']:

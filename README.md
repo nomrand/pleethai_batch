@@ -36,7 +36,7 @@ from new Japanese, Thai, Englise sentences
 1. Put the exported DB Table data (xlsx files) into `excel_data\in` directory
    - The names of exported DB Table data files must be Constituent.xlsx / Example.xlsx / Tag.xlsx / Word.xlsx / WordClass.xlsx
 1. Write down 1 or more new Japanese, Thai, Englise sentences
-into `Example_Input` sheet in `excel_data\in\create_ex_cons_result.xlsx` file
+into `Example_Input` sheet in `excel_data\in\ex_cons_tmp.xlsx` file
    - This file must be closed before going to next step
 1. Type command bellow
 ```

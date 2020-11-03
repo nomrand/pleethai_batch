@@ -1,7 +1,7 @@
 import sys
 from pykakasi import kakasi  # translate japanese to roman
 from janome.tokenizer import Tokenizer  # analysis sentence
-import example.const as const
+import common.const as const
 
 
 def conv_word(word, mode_from, mode_to):
@@ -137,4 +137,52 @@ def get_tokens(sentence):
 
         result.append(t)
 
+    return result
+
+
+def get_sentence_data(sentence):
+    ''' Convert example(sentence) to Hiragana, Roman, Words...
+    Parameters
+    ----------
+    sentence : str
+        1 line of Japanese example(sentence) ex. 私は走った
+
+    Returns
+    -------
+    result : dict
+        result['hiragana']   Hiragana (space-separated) (ex. わたし は はしっ た)
+        result['roman']   Roman (space-separated) (ex. watashi ha hashitsu ta)
+        result['words_list']   List of words (ex. result['words_list'][0]=私, result['words_list'][1]=走る, ...)
+        result['wordclasses_list']   List of wordclasses
+    '''
+    tokens = get_tokens(sentence)
+
+    hiras = ''
+    romans = ''
+    words_list = []
+    wordclasses_list = []
+    for t in tokens:
+        hiras += t['hiragana'] + ' '
+        romans += t['roman'] + ' '
+
+        # Set Words
+        if t['wordclass'] in const.WORD_CLASS:
+            if t['base'] in const.NO_WORDS_LIST_TARGETS:
+                # Not for target
+                continue
+            if (len(t['base']) == 1) and (t['base'] == t['hiragana']) and (t['wordclass'] != '名詞'):
+                # Not for target (postpositional particle, such as 'は', 'が', 'へ', 'の', 'と', 'も' ...)
+                continue
+            words_list.append(t['base'])
+            wordclasses_list.append(t['wordclass'])
+
+    hiras = hiras.strip()
+    romans = romans.strip()
+
+    result = {
+        'hiragana': hiras,
+        'roman': romans,
+        'words_list': words_list,
+        'wordclasses_list': wordclasses_list,
+    }
     return result

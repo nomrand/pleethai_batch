@@ -7,7 +7,7 @@ import common.word_util as word_util
     ('わたしは', 'H', 'K', 'ワタシハ'),
     ('私は走った', 'J', 'H', 'わたしははしった'),
 ])
-def test_conv_word(word, mode_from, mode_to, expect):
+def test(word, mode_from, mode_to, expect):
     assert word_util.conv_word(word, mode_from, mode_to) == expect
 
 

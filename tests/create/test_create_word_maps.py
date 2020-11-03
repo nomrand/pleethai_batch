@@ -1,7 +1,7 @@
 import pytest
-import example.create_ex_cons_data as create_ex_cons_data
+import create.ex_cons_data as ex_cons_data
 
-def test_get_sentence_data():
+def test():
     org_words_data = [
         {'id':0, 'japanese':'生きる', 'english':'', 'thai':''},
         {'id':1, 'japanese':'生きている', 'english':'', 'thai':''},
@@ -12,7 +12,7 @@ def test_get_sentence_data():
         {'id':6, 'japanese':'ABC、bbb,CCC/DDD//(分割される例)', 'english':'', 'thai':''},
     ]
 
-    word_map, sep_words_map = create_ex_cons_data._create_word_maps(org_words_data)
+    word_map, sep_words_map = ex_cons_data._create_word_maps(org_words_data)
     assert '' not in word_map
     assert word_map['生きる'] == org_words_data[0]
     assert word_map['生きている'] == org_words_data[1]

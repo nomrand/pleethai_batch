@@ -1,5 +1,5 @@
 import pytest
-import example.create_ex_cons_data as create_ex_cons_data
+import common.word_util as word_util
 
 @pytest.mark.parametrize('sentence, expect', [
     ('私は走った',
@@ -11,8 +11,8 @@ import example.create_ex_cons_data as create_ex_cons_data
         },
     ),
 ])
-def test_get_sentence_data(sentence, expect):
-    assert create_ex_cons_data.get_sentence_data(sentence) == expect
+def test(sentence, expect):
+    assert word_util.get_sentence_data(sentence) == expect
 
 if __name__ == '__main__':
     pytest.main(['-v', __file__])

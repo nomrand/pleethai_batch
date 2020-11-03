@@ -1,7 +1,7 @@
 import pytest
-import example.create_ex_cons_data as create_ex_cons_data
+import create.ex_cons_data as ex_cons_data
 
-def test_get_sentence_data():
+def test():
     org_words_data = [
         {'id':0, 'japanese':'生きる', 'english':'', 'thai':''},
         {'id':1, 'japanese':'生きている', 'english':'', 'thai':''},
@@ -10,10 +10,10 @@ def test_get_sentence_data():
         {'id':4, 'japanese':'生きていた人', 'english':'', 'thai':''},
         {'id':5, 'japanese':'生き死に', 'english':'', 'thai':''},
     ]
-    word_map, sep_words_map = create_ex_cons_data._create_word_maps(org_words_data)
+    word_map, sep_words_map = ex_cons_data._create_word_maps(org_words_data)
     example_data = {'id':10, 'japanese':'', 'words_list':'生き物,生きる,死ぬ,生きる,いる,人,生きる,いる,生きる,たい',}
     
-    cons_data_list = create_ex_cons_data._create_cons_data(example_data, word_map, sep_words_map)
+    cons_data_list = ex_cons_data._create_cons_data(example_data, word_map, sep_words_map)
     assert len(cons_data_list) == 5
     # 'id':2, 'japanese':'生き物'
     assert cons_data_list[0]['example_id'] == 10

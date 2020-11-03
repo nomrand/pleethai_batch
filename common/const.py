@@ -2,7 +2,7 @@
 DEBUG = False
 
 # EXCEL CONST
-EXCEL_TMP = 'create_ex_cons_result.xlsx'
+EXCEL_TMP = 'ex_cons_tmp.xlsx'
 EXCEL_TMP_EX_SHEET = 'Example_Input'
 EXCEL_TMP_CONS_SHEET = 'tmp_Constituent'
 EXCEL_WORD = 'Word.xlsx'

@@ -4,7 +4,9 @@ import sys
 
 import common.excel_util as excel_util
 import common.word_util as word_util
-import example.create_ex_cons_data as create_ex_cons_data
+import create.ex_cons_data as ex_cons_data
+import create.hira_roman as hira_roman
+
 
 
 def conv_func():
@@ -13,25 +15,21 @@ def conv_func():
         print('Usage: # python %s %s jp <Japanese Word>' % (sys.argv[0], sys.argv[1]))
         quit()
 
+    # Read target sentences
     cmd = sys.argv[2]
     if len(sys.argv) < 4:
-        if cmd == 'word':
-            pass
-        if cmd == 'example':
-            pass
         return
 
-    # Read target sentences
     jp = sys.argv[3]
     if cmd == 'jp':
-        result = create_ex_cons_data.get_sentence_data(jp)
+        result = word_util.get_sentence_data(jp)
         # japanese	hiragana	roman   wordclasses(,separated) words(,separated)
         print('%s\t%s\t%s\t%s\t%s' % (
             jp, result['hiragana'], result['roman'],
             ','.join(result['wordclasses_list']),
             ','.join(result['words_list']),
         ))
-    if cmd == 'jp_datail':
+    if cmd == 'jp_detail':
         result = word_util.get_tokens(jp)
         print(result)
 
@@ -47,10 +45,15 @@ def create_func():
     color = random.choice(excel_util.COLOR_INDEX)
 
     if cmd == 'ex_tmp':
-        create_ex_cons_data.set_temp_data(toppath)
+        ex_cons_data.set_temp_data(toppath)
     if cmd == 'ex_cons':
-        create_ex_cons_data.set_temp_data(toppath)
-        create_ex_cons_data.set_actual_data(toppath, color)
+        ex_cons_data.set_temp_data(toppath)
+        ex_cons_data.set_actual_data(toppath, color)
+        
+    if cmd == 'word_info':
+        hira_roman.create_info_word(toppath)
+    if cmd == 'ex_info':
+        hira_roman.create_info_ex(toppath)
 
 
 if __name__ == '__main__':
