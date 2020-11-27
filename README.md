@@ -3,7 +3,6 @@
 ## installation
 At the top of this project ...
 
-### Install Pakcages
 ```
 pip install -r requirements.txt
 ``` 
@@ -29,16 +28,16 @@ python main.py conv jp 単語変換ツール
 単語変換ツール  たんご へんかん つーる  tango henkan tsuuru     名詞,名詞,名詞  単語,変換,ツール
 ```
 
-### DB Data Creation
-Create "Example", "Constituent" DB Table data
-from new Japanese, Thai, Englise sentences
+__________
+### Example & Constituent DB Data Creation
+
+Create "Example", "Constituent" DB Table data from new Japanese sentences (="japanese" column)
 
 1. Put the exported DB Table data (xlsx files) into `excel_data\in` directory
    - The names of exported DB Table data files must be Constituent.xlsx / Example.xlsx / Tag.xlsx / Word.xlsx / WordClass.xlsx
-1. Write down 1 or more new Japanese, Thai, Englise sentences
-into `Example_Input` sheet in `excel_data\in\ex_cons_tmp.xlsx` file
+2. Write down 1 or more new Japanese (and Thai, English) sentences into `Example_Input` sheet in `excel_data\in\ex_cons_tmp.xlsx` file
    - This file must be closed before going to next step
-1. Type command bellow
+3. Type command bellow
 ```
 python main.py create ex_cons
 ```
@@ -46,6 +45,25 @@ python main.py create ex_cons
 The results will be output into `excel_data\out` directory
 
 **The results will be not perfect, so you must check!!**
+
+
+
+### Word DB Data Creation
+
+Create "Word" DB Table data from new Japanese word (="japanese" column)
+
+1. Put the exported DB Table data (xlsx files) into `excel_data\in` directory
+   - The names of exported DB Table data files must be Word.xlsx
+2. Write down 1 or more new Japanese (and Thai, English) words into `excel_data\in\Word.xlsx` file
+3. Type command bellow
+```
+python main.py create word_info
+```
+
+The results will be output into `excel_data\out` directory
+
+**The results will be not perfect, so you must check!!**
+
 
 __________
 ## Testing

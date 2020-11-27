@@ -5,6 +5,7 @@ import shutil
 import common.excel_util as excel_util
 import common.file_util as file_util
 import common.word_util as word_util
+import common.scraping_util as scraping_util
 import common.const as const
 
 
@@ -51,15 +52,24 @@ def create_info(top_path, target_table):
     for data in org_data:
         print('\tData(for update):%s' % data['japanese'])
         converted = word_util.get_sentence_data(data['japanese'])
-        # Update only target keys in 'target_data'
-        target_data.append({
+        result = {
             'hiragana': converted['hiragana'],
             'roman': converted['roman'],
-        })
+        }
+        # Words must be searched & get search-hit-number
+        if target_table == 'WORD':
+            result['wordclass_id'] = ','.join(converted['wordclasses_list'])
+            result['search'] = scraping_util.get_search_num(data['japanese'])
+            print('\t\tSearched:' + str(result['search']))
+        
+        target_data.append(result)
 
     print('#### WRITE to EXCEL')
-    print('EXAMPLE(num=%d)' % len(target_data))
+    print('%s num=%d' % (target_table, len(target_data)))
     # this starts from 1, and skip header line (=2)
+    # (The data in 'target_data' only will be updated) 
     excel_util.set_excel_data(target_data, file_out, startrow=2)
 
     print('### UPDATED!!! ###')
+    if target_table == 'WORD':
+        print('[wordclass_id] column is sample data. So you have to change them to real wordclass_id!!!')
