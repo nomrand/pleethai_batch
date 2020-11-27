@@ -9,24 +9,24 @@ pip install -r requirements.txt
 
 
 
+__________
 ## Usage
-At the top of this project ...
+### Word DB Data Creation
 
-### Word Conversion
-Convert a Japanese Word (or a sentence)
-to hiragana, roman, word classes, and simple form words
-```
-python main.py conv jp <Japanese Word>
-```
-- Sample
-```
-# Command
-python main.py conv jp 単語変換ツール
+Create "Word" DB Table data from new Japanese word (="japanese" column)
 
-# Result (Tab separated)
-# [Japanese Word]	[hiragana]	[roman]	[word classes]	[simple form words]
-単語変換ツール  たんご へんかん つーる  tango henkan tsuuru     名詞,名詞,名詞  単語,変換,ツール
+1. Put the exported DB Table data (xlsx files) into `excel_data\in` directory
+   - The names of exported DB Table data files must be Word.xlsx
+2. Write down 1 or more new Japanese (and Thai, English) words into `excel_data\in\Word.xlsx` file
+3. Type command bellow
 ```
+python main.py create word_info
+```
+
+The results will be output into `excel_data\out` directory
+
+**The results will be not perfect, so you must check!!**
+
 
 __________
 ### Example & Constituent DB Data Creation
@@ -46,24 +46,23 @@ The results will be output into `excel_data\out` directory
 
 **The results will be not perfect, so you must check!!**
 
-
-
-### Word DB Data Creation
-
-Create "Word" DB Table data from new Japanese word (="japanese" column)
-
-1. Put the exported DB Table data (xlsx files) into `excel_data\in` directory
-   - The names of exported DB Table data files must be Word.xlsx
-2. Write down 1 or more new Japanese (and Thai, English) words into `excel_data\in\Word.xlsx` file
-3. Type command bellow
+__________
+___* Optional Function___
+### Word Conversion
+Convert a Japanese Word (or a sentence)
+to hiragana, roman, word classes, and simple form words
 ```
-python main.py create word_info
+python main.py conv jp <Japanese Word>
 ```
+- Sample
+```
+# Command
+python main.py conv jp 単語変換ツール
 
-The results will be output into `excel_data\out` directory
-
-**The results will be not perfect, so you must check!!**
-
+# Result (Tab separated)
+# [Japanese Word]	[hiragana]	[roman]	[word classes]	[simple form words]
+単語変換ツール  たんご へんかん つーる  tango henkan tsuuru     名詞,名詞,名詞  単語,変換,ツール
+```
 
 __________
 ## Testing
